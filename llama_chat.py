@@ -6,6 +6,25 @@ import datetime
 import subprocess
 
 # ----------------------------
+# Llama3 Model Loading (CPU-friendly, quantized)
+# ----------------------------
+from llama_cpp import Llama  # pip install llama-cpp-python
+
+LLAMA_MODEL_PATH = "/path/to/llama-3-7b-q4_0.ggml.bin"  # replace with your quantized model path
+print("Loading Llama 3 model... This may take a while on CPU.")
+llm = Llama(model_path=LLAMA_MODEL_PATH)
+print("Model loaded successfully!")
+
+def llama3_generate(prompt, project_name=None, max_tokens=256):
+    """
+    Generate text using local Llama 3.
+    """
+    response = llm(prompt=prompt, max_tokens=max_tokens, stop=["\n\n"]).get("choices")[0]["text"]
+    if project_name:
+        save_session(project_name, prompt, response)
+    return response
+
+# ----------------------------
 # Persistent Session Memory
 # ----------------------------
 MEMORY_DIR = "./session_memory"
@@ -25,18 +44,6 @@ def save_session(project_name, message, response):
     path = os.path.join(MEMORY_DIR, f"{project_name}_session.json")
     with open(path, "w") as f:
         json.dump(session, f, indent=2)
-
-# ----------------------------
-# Placeholder for Llama3
-# ----------------------------
-def llama3_generate(prompt, project_name=None):
-    """
-    Replace with your local Llama3 inference call.
-    """
-    response = f"# AI suggestion for prompt:\n{prompt[:300]}...\n"
-    if project_name:
-        save_session(project_name, prompt, response)
-    return response
 
 # ----------------------------
 # Project Management
